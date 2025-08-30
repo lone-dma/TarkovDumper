@@ -1,3 +1,3 @@
-# TarkovDumper
+# TarkovDumper-lite
 
-Credit to Lone and [lone-dma](https://github.com/lone-dma)
+Goes with [eft-dma-radar-lite](https://github.com/lone-dma/eft-dma-radar-lite)
