@@ -1,3 +1,3 @@
-# TarkovDumper-lite
+# TarkovDumper
 
-Goes with [eft-dma-radar-lite](https://github.com/lone-dma/eft-dma-radar-lite)
+Assembly/Offsets Dumper; SDK Generator for EFT.
