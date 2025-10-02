@@ -119,20 +119,6 @@ namespace TarkovDumper
 
                 structGenerator.AddStruct(nestedStruct);
             }
-
-            {
-                string name = "ScreenManager";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name);
-
-                string entity = "InitChatScreen";
-
-                var fClass = _dnlibHelper.FindClassWithEntityName(entity, DnlibHelper.SearchType.Method);
-                nestedStruct.AddClassName(fClass, "ClassName", entity);
-
-                structGenerator.AddStruct(nestedStruct);
-            }
         }
 
         private void ProcessOffsets(StatusContext ctx, StructureGenerator structGenerator)
@@ -227,17 +213,6 @@ namespace TarkovDumper
                     var fClass = _dnlibHelper.FindClassWithEntityName("GetAlivePlayerByProfileID", DnlibHelper.SearchType.Method);
                     var fMethod = _dnlibHelper.FindMethodByName(fClass, "get_SynchronizableObjectLogicProcessor");
                     var fField = _dnlibHelper.GetNthFieldReferencedByMethod(fMethod);
-
-                    var offset = _dumpParser.FindOffsetByName(name, fField.GetFieldName());
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "LocationId";
-
-                    TypeDef foundClass = _dnlibHelper.FindClassByTypeName("EFT.GameWorld");
-                    MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_LocationId");
-                    FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
 
                     var offset = _dumpParser.FindOffsetByName(name, fField.GetFieldName());
                     nestedStruct.AddOffset(entity, offset);
@@ -483,20 +458,6 @@ namespace TarkovDumper
                 }
 
                 {
-                    entity = "<GrenadeTemplateId>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "<FromPosition>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
                     entity = "<ToPosition>k__BackingField";
 
                     var offset = _dumpParser.FindOffsetByName(className, entity);
@@ -707,17 +668,6 @@ namespace TarkovDumper
                     nestedStruct.AddOffset(entity, offset);
                 }
 
-                {
-                    entity = "WeaponSource";
-
-                    TypeDef foundClass = _dnlibHelper.FindClassByTypeName(className);
-                    MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_WeaponSource");
-                    FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
-
-                    var offset = _dumpParser.FindOffsetByName(className, fField.GetFieldName());
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
                 structGenerator.AddStruct(nestedStruct);
             }
 
@@ -774,35 +724,7 @@ namespace TarkovDumper
                 }
 
                 {
-                    entity = "<InteractableObject>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
                     entity = "<Profile>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "Physical";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "<AIData>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "_healthController";
 
                     var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
@@ -817,13 +739,6 @@ namespace TarkovDumper
 
                 {
                     entity = "_handsController";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "<IsYourPlayer>k__BackingField";
 
                     var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
@@ -849,17 +764,6 @@ namespace TarkovDumper
 
                     TypeDef foundClass = _dnlibHelper.FindClassByTypeName(className);
                     MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_GroupId");
-                    FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
-
-                    var offset = _dumpParser.FindOffsetByName(className, fField.GetFieldName());
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "NickName";
-
-                    TypeDef foundClass = _dnlibHelper.FindClassByTypeName(className);
-                    MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_NickName");
                     FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
 
                     var offset = _dumpParser.FindOffsetByName(className, fField.GetFieldName());
@@ -997,17 +901,6 @@ namespace TarkovDumper
                 }
 
                 {
-                    entity = "InfoContainer";
-
-                    TypeDef foundClass = _dnlibHelper.FindClassByTypeName(ObservedPlayerControllerTypeName);
-                    MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_InfoContainer");
-                    FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
-
-                    InfoContainerOffset = _dumpParser.FindOffsetByName(ObservedPlayerControllerTypeName, fField.GetFieldName());
-                    nestedStruct.AddOffset(entity, InfoContainerOffset);
-                }
-
-                {
                     entity = "HealthController";
 
                     TypeDef foundClass = _dnlibHelper.FindClassByTypeName(ObservedPlayerControllerTypeName);
@@ -1054,17 +947,6 @@ namespace TarkovDumper
 
                     TypeDef foundClass = _dnlibHelper.FindClassByTypeName(ObservedPlayerStateContextTypeName);
                     MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_Rotation");
-                    FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
-                    var offset = _dumpParser.FindOffsetByName(ObservedPlayerStateContextTypeName, fField.GetFieldName());
-
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "Velocity";
-
-                    TypeDef foundClass = _dnlibHelper.FindClassByTypeName(ObservedPlayerStateContextTypeName);
-                    MethodDef foundMethod = _dnlibHelper.FindMethodByName(foundClass, "get_Velocity");
                     FieldDef fField = _dnlibHelper.GetNthFieldReferencedByMethod(foundMethod);
                     var offset = _dumpParser.FindOffsetByName(ObservedPlayerStateContextTypeName, fField.GetFieldName());
 
@@ -1479,26 +1361,6 @@ namespace TarkovDumper
             }
 
             {
-                string name = "QuestConditionItem";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name);
-
-                string entity;
-
-                const string className = "EFT.Quests.ConditionItem";
-
-                {
-                    entity = "<value>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            {
                 string name = "QuestConditionFindItem";
                 SetVariableStatus(name);
 
@@ -1688,14 +1550,6 @@ namespace TarkovDumper
                 string InventoryEquipmentTypeName = InventoryEquipmentOffset.Value.TypeName.Replace("-.", "");
 
                 {
-                    entity = "Grids";
-
-                    var offset = _dumpParser.FindOffsetByName(InventoryEquipmentTypeName, entity);
-                    GridsClassName = offset.Value.TypeName.Replace("-.", "").Replace("[]", "");
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
                     entity = "Slots";
 
                     var offset = _dumpParser.FindOffsetByName(InventoryEquipmentTypeName, entity);
@@ -1703,48 +1557,6 @@ namespace TarkovDumper
                 }
 
             end:
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            string GridContainedItemsClassName = default;
-
-            {
-                string name = "Grids";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name);
-
-                string entity;
-
-                var fClass = _dnlibHelper.FindClassByTypeName(GridsClassName);
-
-                {
-                    var fFMethod = _dnlibHelper.FindMethodByName(fClass, "get_ItemCollection");
-                    var fField = _dnlibHelper.GetNthFieldReferencedByMethod(fFMethod);
-                    GridContainedItemsClassName = fField.GetTypeName();
-                    entity = "ContainedItems";
-
-                    var offset = _dumpParser.FindOffsetByName(fClass.Humanize(), fField.Humanize());
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            {
-                string name = "GridContainedItems";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name);
-
-                string entity;
-                {
-                    entity = "Items";
-
-                    var offset = _dumpParser.FindOffsetByTypeName(GridContainedItemsClassName, "System.Collections.Generic.List<Item>");
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
                 structGenerator.AddStruct(nestedStruct);
             }
 
@@ -1767,13 +1579,6 @@ namespace TarkovDumper
 
                 {
                     entity = "<ContainedItem>k__BackingField";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
-
-                {
-                    entity = "Required";
 
                     var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
@@ -1916,13 +1721,6 @@ namespace TarkovDumper
                 string entity;
 
                 const string className = "EFT.InventoryLogic.Mod";
-
-                {
-                    entity = "Grids";
-
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, offset);
-                }
 
                 {
                     entity = "Slots";
@@ -2160,6 +1958,36 @@ namespace TarkovDumper
             {
                 LastStepName = variable;
                 ctx.Status(variable);
+            }
+
+            {
+                const string name = "EPlayerSide";
+                const string typeName = "EPlayerSide";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
+
+                var eType = _dnlibHelper.FindEnumByTypeName(typeName);
+                var eFields = _dnlibHelper.GetEnumValues(eType);
+
+                nestedStruct.AddEnum(eFields, flags: false);
+
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+            {
+                const string name = "ETagStatus";
+                const string typeName = "ETagStatus";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
+
+                var eType = _dnlibHelper.FindEnumByTypeName(typeName);
+                var eFields = _dnlibHelper.GetEnumValues(eType);
+
+                nestedStruct.AddEnum(eFields, flags: true);
+
+                structGenerator.AddStruct(nestedStruct);
             }
 
             {

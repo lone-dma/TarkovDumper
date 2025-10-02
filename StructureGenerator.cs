@@ -56,7 +56,6 @@ namespace TarkovDumper
             if (typeDef != null)
             {
                 AddString(variable, outputFullNameAlt ? typeDef.HumanizeAlt(outputFullName) : typeDef.Humanize(outputFullName));
-                AddOffset($"{variable}_ClassToken", new(true, new($"{variable}_ClassToken", "MDToken", typeDef.MDToken.Raw)));
 
                 ClassesProcessed++;
             }
