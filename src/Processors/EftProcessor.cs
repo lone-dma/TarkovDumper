@@ -1,8 +1,9 @@
 ﻿using dnlib.DotNet;
 using ICSharpCode.Decompiler.CSharp;
 using Spectre.Console;
+using TarkovDumper.Helpers;
 
-namespace TarkovDumper
+namespace TarkovDumper.Processors
 {
     public sealed class EftProcessor
     {

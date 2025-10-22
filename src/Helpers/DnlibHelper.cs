@@ -2,7 +2,7 @@
 using dnlib.DotNet.Emit;
 using Spectre.Console;
 
-namespace TarkovDumper
+namespace TarkovDumper.Helpers
 {
     public sealed class DnlibHelper
     {

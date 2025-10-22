@@ -1,5 +1,6 @@
 ﻿using Spectre.Console;
 using System.Diagnostics;
+using TarkovDumper.Processors;
 
 namespace TarkovDumper
 {

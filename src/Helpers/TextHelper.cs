@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TarkovDumper
+namespace TarkovDumper.Helpers
 {
     public static class TextHelper
     {
