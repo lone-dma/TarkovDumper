@@ -1,78 +1,24 @@
 ﻿using dnlib.DotNet;
-using ICSharpCode.Decompiler.CSharp;
 using Spectre.Console;
+using TarkovDumper.Helpers;
+using TarkovDumper.UI;
 
-namespace TarkovDumper
+namespace TarkovDumper.Processors
 {
-    public sealed class EftProcessor
+    public sealed class EftProcessor : AbstractProcessor
     {
-        private readonly string _sdkPath;
-        private readonly ModuleDefMD _module;
-        private readonly Decompiler _decompiler_Basic;
-        private readonly Decompiler _decompiler_Async;
-        private readonly DnlibHelper _dnlibHelper;
-        private readonly DumpParser _dumpParser;
+        public EFTConfig Config { get; } = Program.Config.EFT;
 
-        public string LastStepName { get; private set; } = "N/A";
-
-        private EftProcessor() { }
-
-        public EftProcessor(string assemblyPath, string dumpPath, string sdkPath)
+        public EftProcessor() : base(Program.Config.EFT.AssemblyPath, Program.Config.EFT.DumpPath)
         {
-            ArgumentException.ThrowIfNullOrEmpty(assemblyPath, nameof(assemblyPath));
-            ArgumentException.ThrowIfNullOrEmpty(dumpPath, nameof(dumpPath));
-            ArgumentException.ThrowIfNullOrEmpty(sdkPath, nameof(sdkPath));
-            _sdkPath = sdkPath;
-            try
-            {
-                _module = ModuleDefMD.Load(assemblyPath);
-                _module.EnableTypeDefFindCache = true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"[bold yellow]Error loading assembly ~[/] [red]{ex.Message}[/]");
-            }
-
-            try
-            {
-                CSharpDecompiler CSharpDecompiler_basic = new(assemblyPath, new()
-                {
-                    AnonymousMethods = false,
-                    ThrowOnAssemblyResolveErrors = false,
-                    AsyncAwait = false,
-                });
-                _decompiler_Basic = new(CSharpDecompiler_basic);
-
-                CSharpDecompiler CSharpDecompiler_async = new(assemblyPath, new()
-                {
-                    AnonymousMethods = false,
-                    ThrowOnAssemblyResolveErrors = false,
-                });
-                _decompiler_Async = new(CSharpDecompiler_async);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"[bold yellow]Error loading decompiler ~[/] [red]{ex.Message}[/]");
-            }
-
-            try { _dnlibHelper = new(_module); }
-            catch (Exception ex)
-            {
-                throw new Exception($"[bold yellow]Error loading dnlib helper ~[/] [red]{ex.Message}[/]");
-            }
-
-            try { _dumpParser = new(dumpPath); }
-            catch (Exception ex)
-            {
-                throw new Exception($"[bold yellow]Error loading dump parser ~[/] [red]{ex.Message}[/]");
-            }
+            ArgumentException.ThrowIfNullOrWhiteSpace(Config.OutputPath, nameof(Config.OutputPath));
         }
 
         /// <summary>
         /// Run this Processor Job.
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        public void Run(StatusContext ctx)
+        public override void Run(StatusContext ctx)
         {
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine($"Processing {this.GetType()} entries...");
@@ -95,7 +41,7 @@ namespace TarkovDumper
             AnsiConsole.WriteLine(StructureGenerator.GenerateReports(sgList));
 
             string plainSDK = StructureGenerator.GenerateNamespace("SDK", sgList, false);
-            File.WriteAllText(_sdkPath, plainSDK);
+            File.WriteAllText(Config.OutputPath, plainSDK);
         }
 
         private void ProcessClassNames(StatusContext ctx, StructureGenerator structGenerator)

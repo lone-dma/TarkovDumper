@@ -2,7 +2,7 @@
 using ICSharpCode.Decompiler.CSharp;
 using System.Reflection.Metadata.Ecma335;
 
-namespace TarkovDumper
+namespace TarkovDumper.Helpers
 {
     public sealed class Decompiler
     {
