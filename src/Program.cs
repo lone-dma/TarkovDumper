@@ -17,8 +17,9 @@ namespace TarkovDumper
 {
     class Program
     {
-        private const string CONFIG_PATH = "dumper_config.json";
         internal const string Name = "Tarkov Dumper";
+        private static readonly DirectoryInfo _configFolder = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TarkovDumper"));
+        private static readonly FileInfo _configFile = new(Path.Combine(_configFolder.FullName, "dumper_config.json"));
 
         /// <summary>
         /// Dumper Configuration File.
@@ -28,14 +29,15 @@ namespace TarkovDumper
         static Program()
         {
             Console.OutputEncoding = Encoding.Unicode;
-            if (!File.Exists(CONFIG_PATH))
+            _configFolder.Create(); // Create config folder if it doesn't exist
+            if (!_configFile.Exists)
             {
                 Config = new();
-                File.WriteAllText(CONFIG_PATH, JsonSerializer.Serialize(Config, new JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(_configFile.FullName, JsonSerializer.Serialize(Config, new JsonSerializerOptions { WriteIndented = true }));
             }
             else
             {
-                var configText = File.ReadAllText(CONFIG_PATH);
+                var configText = File.ReadAllText(_configFile.FullName);
                 Config = JsonSerializer.Deserialize<DumperConfig>(configText) ?? new();
             }
         }
