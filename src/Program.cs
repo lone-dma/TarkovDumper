@@ -3,14 +3,22 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using TarkovDumper;
 using TarkovDumper.Processors;
 using TarkovDumper.UI;
+
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyTitle(Program.Name)]
+[assembly: AssemblyProduct(Program.Name)]
+[assembly: AssemblyCopyright("©2025 Lone")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("Windows")]
 
 namespace TarkovDumper
 {
     class Program
     {
         private const string CONFIG_PATH = "dumper_config.json";
+        internal const string Name = "Tarkov Dumper";
 
         /// <summary>
         /// Dumper Configuration File.
@@ -60,7 +68,7 @@ namespace TarkovDumper
         }
         private static void RenderHeader(string version)
         {
-            var title = new FigletText("Tarkov Dumper")
+            var title = new FigletText(Program.Name)
                 .Centered()
                 .Color(Color.Aqua);
             AnsiConsole.Write(title);
