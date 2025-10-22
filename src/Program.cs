@@ -1,45 +1,112 @@
 ﻿using Spectre.Console;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using TarkovDumper.Processors;
+using TarkovDumper.UI;
 
 namespace TarkovDumper
 {
-    internal class Program
+    class Program
     {
+        private const string CONFIG_PATH = "dumper_config.json";
+
+        /// <summary>
+        /// Dumper Configuration File.
+        /// </summary>
+        internal static DumperConfig Config { get; }
+
+        static Program()
+        {
+            Console.OutputEncoding = Encoding.Unicode;
+            if (!File.Exists(CONFIG_PATH))
+            {
+                Config = new();
+                File.WriteAllText(CONFIG_PATH, JsonSerializer.Serialize(Config, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            else
+            {
+                var configText = File.ReadAllText(CONFIG_PATH);
+                Config = JsonSerializer.Deserialize<DumperConfig>(configText) ?? new();
+            }
+        }
+
         static void Main()
+        {
+            string version = Assembly.GetExecutingAssembly()!.GetName()!.Version!.ToString();
+            while (true) // Prompt loop
+            {
+                AnsiConsole.Clear();
+                RenderHeader(version);
+                var selection = ShowMenu();
+
+                switch (selection)
+                {
+                    case MenuSelection.EFT:
+                        ExecuteProcessor<EftProcessor>();
+                        break;
+                    case MenuSelection.Arena:
+                        ExecuteProcessor<ArenaProcessor>();
+                        break;
+                    case MenuSelection.All:
+                        ExecuteProcessor<EftProcessor>();
+                        ExecuteProcessor<ArenaProcessor>();
+                        break;
+                    case MenuSelection.Exit:
+                        return;
+                }
+            }
+        }
+        private static void RenderHeader(string version)
+        {
+            var title = new FigletText("Tarkov Dumper")
+                .Centered()
+                .Color(Color.Aqua);
+            AnsiConsole.Write(title);
+
+            AnsiConsole.MarkupLine($"[gray]Version {version}[/]");
+            AnsiConsole.MarkupLine($"[gray]https://lone-dma.org/[/]");
+            AnsiConsole.Write(new Rule().RuleStyle("grey").Centered());
+            AnsiConsole.WriteLine();
+        }
+
+        private static MenuSelection ShowMenu()
+        {
+            AnsiConsole.MarkupLine("[bold]Select job to run:[/]");
+            var prompt = new SelectionPrompt<MenuSelection>()
+                .Title("Choose a [green]task[/]:")
+                .PageSize(Enum.GetValues<MenuSelection>().Length)
+                .AddChoices(Enum.GetValues<MenuSelection>());
+            return AnsiConsole.Prompt(prompt);
+        }
+
+        private static void ExecuteProcessor<T>()
+            where T : AbstractProcessor
         {
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
-            AnsiConsole.Profile.Width = 420;
-            AnsiConsole.Status().Start("Starting...", ctx => {
+
+            AnsiConsole.Status().Start($"Starting {typeof(T)}...", ctx =>
+            {
                 ctx.Spinner(Spinner.Known.Dots);
                 ctx.SpinnerStyle(Style.Parse("green"));
 
-                EftProcessor processor = null;
+                AbstractProcessor processor = null;
                 try
                 {
-                    string asm = Environment.GetEnvironmentVariable("TARKOV_DUMPER_ASSEMBLY", EnvironmentVariableTarget.Machine);
-                    asm ??= Environment.GetEnvironmentVariable("TARKOV_DUMPER_ASSEMBLY", EnvironmentVariableTarget.User);
-                    asm ??= Path.Combine(Environment.CurrentDirectory, "Assembly-CSharp.dll");
-                    string dump = Environment.GetEnvironmentVariable("TARKOV_DUMPER_DUMP", EnvironmentVariableTarget.Machine);
-                    dump ??= Environment.GetEnvironmentVariable("TARKOV_DUMPER_DUMP", EnvironmentVariableTarget.User);
-                    dump ??= Path.Combine(Environment.CurrentDirectory, "dump.txt");
-                    string output = Environment.GetEnvironmentVariable("TARKOV_DUMPER_OUTPUT", EnvironmentVariableTarget.Machine);
-                    output ??= Environment.GetEnvironmentVariable("TARKOV_DUMPER_OUTPUT", EnvironmentVariableTarget.User);
-                    output ??= Path.Combine(Environment.CurrentDirectory, "SDK.cs");
-                    Console.WriteLine(
-                        $"ASSEMBLY INPUT: {asm}\n" +
-                        $"DUMP INPUT: {dump}\n" +
-                        $"SDK OUTPUT: {output}");
-                    processor = new EftProcessor(asm, dump, output);
+                    processor = Activator.CreateInstance<T>();
                     processor.Run(ctx);
                 }
                 catch (Exception ex)
                 {
                     AnsiConsole.WriteLine();
 
-                    if (processor != null)
-                        AnsiConsole.MarkupLine($"[bold yellow]Exception thrown while processing step -> {processor.LastStepName}[/]");
+                    if (processor is not null)
+                    {
+                        var step = (processor is EftProcessor ep) ? ep.LastStepName : processor.LastStepName;
+                        AnsiConsole.MarkupLine($"[bold yellow]Exception thrown while processing step -> {step}[/]");
+                    }
 
                     AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
                     if (ex.StackTrace != null)
@@ -51,19 +118,19 @@ namespace TarkovDumper
                 }
                 finally
                 {
+                    GC.Collect();
                     Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
                     Thread.CurrentThread.Priority = ThreadPriority.Normal;
+                    Pause();
                 }
             });
-
-            Pause();
         }
 
         private static void Pause()
         {
             AnsiConsole.WriteLine();
             AnsiConsole.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
     }
 }
