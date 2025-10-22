@@ -49,7 +49,7 @@ namespace TarkovDumper.Helpers
 
             var byteCount = Encoding.Unicode.GetBytes(nameSpan, utf16Bytes);
             if (byteCount < 2)
-                throw new Exception("The supplied name is too short");
+                throw new InvalidOperationException("The supplied name is too short");
 
             return $"{name.Substring(0, startIndex)}\\u{BitConverter.ToUInt16(utf16Bytes):X4}";
         }

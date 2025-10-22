@@ -30,7 +30,7 @@ namespace TarkovDumper.Processors
             }
             catch (Exception ex)
             {
-                throw new Exception($"[bold yellow]Error loading assembly ~[/] [red]{ex.Message}[/]");
+                throw new InvalidOperationException($"[bold yellow]Error loading assembly ~[/] [red]{ex.Message}[/]");
             }
 
             try
@@ -52,19 +52,19 @@ namespace TarkovDumper.Processors
             }
             catch (Exception ex)
             {
-                throw new Exception($"[bold yellow]Error loading decompiler ~[/] [red]{ex.Message}[/]");
+                throw new InvalidOperationException($"[bold yellow]Error loading decompiler ~[/] [red]{ex.Message}[/]");
             }
 
             try { _dnlibHelper = new(_module); }
             catch (Exception ex)
             {
-                throw new Exception($"[bold yellow]Error loading dnlib helper ~[/] [red]{ex.Message}[/]");
+                throw new InvalidOperationException($"[bold yellow]Error loading dnlib helper ~[/] [red]{ex.Message}[/]");
             }
 
             try { _dumpParser = new(dumpPath); }
             catch (Exception ex)
             {
-                throw new Exception($"[bold yellow]Error loading dump parser ~[/] [red]{ex.Message}[/]");
+                throw new InvalidOperationException($"[bold yellow]Error loading dump parser ~[/] [red]{ex.Message}[/]");
             }
         }
 
