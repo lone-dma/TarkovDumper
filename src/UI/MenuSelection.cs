@@ -4,7 +4,7 @@
     {
         EFT,
         Arena,
-        All,
+        Both,
         Exit
     }
 }

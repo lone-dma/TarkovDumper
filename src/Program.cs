@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime;
 using System.Text;
 using System.Text.Json;
 using TarkovDumper;
@@ -59,7 +60,7 @@ namespace TarkovDumper
                     case MenuSelection.Arena:
                         ExecuteProcessor<ArenaProcessor>();
                         break;
-                    case MenuSelection.All:
+                    case MenuSelection.Both:
                         ExecuteProcessor<EftProcessor>();
                         ExecuteProcessor<ArenaProcessor>();
                         break;
@@ -94,15 +95,13 @@ namespace TarkovDumper
         private static void ExecuteProcessor<T>()
             where T : AbstractProcessor
         {
-            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
-            Thread.CurrentThread.Priority = ThreadPriority.Highest;
-
             AnsiConsole.Status().Start($"Starting {typeof(T)}...", ctx =>
             {
                 ctx.Spinner(Spinner.Known.Dots);
                 ctx.SpinnerStyle(Style.Parse("green"));
 
                 AbstractProcessor processor = null;
+                ToggleHighPerformance();
                 try
                 {
                     processor = Activator.CreateInstance<T>();
@@ -112,12 +111,7 @@ namespace TarkovDumper
                 {
                     AnsiConsole.WriteLine();
 
-                    if (processor is not null)
-                    {
-                        var step = (processor is EftProcessor ep) ? ep.LastStepName : processor.LastStepName;
-                        AnsiConsole.MarkupLine($"[bold yellow]Exception thrown while processing step -> {step}[/]");
-                    }
-
+                    AnsiConsole.MarkupLine($"[bold yellow]Exception thrown while processing step -> {processor?.LastStepName ?? "Unknown"}[/]");
                     AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
                     if (ex.StackTrace != null)
                     {
@@ -128,12 +122,34 @@ namespace TarkovDumper
                 }
                 finally
                 {
-                    GC.Collect();
-                    Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
-                    Thread.CurrentThread.Priority = ThreadPriority.Normal;
+                    ToggleHighPerformance();
                     Pause();
                 }
             });
+        }
+
+        private static void ToggleHighPerformance()
+        {
+            var currentPriority = Thread.CurrentThread.Priority;
+            if (currentPriority == ThreadPriority.Highest) // Job Finished -> Reset to normal
+            {
+                GCSettings.LatencyMode = GCLatencyMode.Interactive;
+                Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
+                Thread.CurrentThread.Priority = ThreadPriority.Normal;
+                // Force a full garbage collection and compact the LOH
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect(
+                    generation: GC.MaxGeneration,
+                    mode: GCCollectionMode.Aggressive,
+                    blocking: true,
+                    compacting: true);
+            }
+            else // Job Starting -> Set high performance
+            {
+                GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+                Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+                Thread.CurrentThread.Priority = ThreadPriority.Highest;
+            }
         }
 
         private static void Pause()
