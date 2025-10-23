@@ -123,7 +123,8 @@ namespace TarkovDumper
                 finally
                 {
                     ToggleHighPerformance();
-                    Pause();
+                    ctx.Status("Press any key to continue...");
+                    Console.ReadKey(true);
                 }
             });
         }
@@ -150,13 +151,6 @@ namespace TarkovDumper
                 Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
                 Thread.CurrentThread.Priority = ThreadPriority.Highest;
             }
-        }
-
-        private static void Pause()
-        {
-            AnsiConsole.WriteLine();
-            AnsiConsole.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
         }
     }
 }
