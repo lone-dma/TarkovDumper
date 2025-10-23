@@ -5,6 +5,7 @@ using TarkovDumper.UI;
 
 namespace TarkovDumper.Processors
 {
+    [Obsolete($"{nameof(ArenaProcessor)} was included as a one-time addition, but will not be maintained going forward.")]
     public sealed class ArenaProcessor : AbstractProcessor
     {
         public ArenaConfig Config { get; } = Program.Config.Arena;
