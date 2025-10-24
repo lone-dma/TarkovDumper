@@ -8,7 +8,7 @@ using TarkovDumper;
 using TarkovDumper.Processors;
 using TarkovDumper.UI;
 
-[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.1.0")]
 [assembly: AssemblyTitle(Program.Name)]
 [assembly: AssemblyProduct(Program.Name)]
 [assembly: AssemblyCopyright("©2025 Lone")]
