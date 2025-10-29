@@ -7,7 +7,7 @@ namespace TarkovDumper.Processors
 {
     public sealed class ArenaProcessor : AbstractProcessor
     {
-        public ArenaConfig Config { get; } = Program.Config.Arena;
+        public ProcessorConfig Config { get; } = Program.Config.Arena;
 
         public ArenaProcessor() : base(Program.Config.Arena.AssemblyPath, Program.Config.Arena.DumpPath)
         {

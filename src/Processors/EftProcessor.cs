@@ -7,7 +7,7 @@ namespace TarkovDumper.Processors
 {
     public sealed class EftProcessor : AbstractProcessor
     {
-        public EFTConfig Config { get; } = Program.Config.EFT;
+        public ProcessorConfig Config { get; } = Program.Config.EFT;
 
         public EftProcessor() : base(Program.Config.EFT.AssemblyPath, Program.Config.EFT.DumpPath)
         {
