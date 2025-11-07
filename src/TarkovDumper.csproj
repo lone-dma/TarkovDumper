@@ -9,6 +9,15 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<!-- GC Tuning for optimal performance -->
+		<ServerGarbageCollection>true</ServerGarbageCollection>
+		<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+		<RetainVMGarbageCollection>true</RetainVMGarbageCollection>
+		<!-- Disable DATAS GC Mode | https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#enabling-or-disabling-datas -->
+		<GarbageCollectionAdaptationMode>0</GarbageCollectionAdaptationMode>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 	  <DebugType>embedded</DebugType>
 	</PropertyGroup>
