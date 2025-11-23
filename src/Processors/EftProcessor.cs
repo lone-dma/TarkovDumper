@@ -968,36 +968,6 @@ namespace TarkovDumper.Processors
             }
 
             {
-                const string name = "WildSpawnType";
-                const string typeName = "EFT.WildSpawnType";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
-
-                var eType = _dnlibHelper.FindEnumByTypeName(typeName);
-                var eFields = _dnlibHelper.GetEnumValues(eType);
-
-                nestedStruct.AddEnum(eFields);
-
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            {
-                const string name = "EExfiltrationStatus";
-                const string typeName = "EFT.Interactive.EExfiltrationStatus";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
-
-                var eType = _dnlibHelper.FindEnumByTypeName(typeName);
-                var eFields = _dnlibHelper.GetEnumValues(eType);
-
-                nestedStruct.AddEnum(eFields);
-
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            {
                 const string name = "SynchronizableObjectType";
                 const string typeName = "SynchronizableObjectType";
                 SetVariableStatus(name);
@@ -1015,21 +985,6 @@ namespace TarkovDumper.Processors
             {
                 const string name = "ETripwireState";
                 const string typeName = "ETripwireState";
-                SetVariableStatus(name);
-
-                StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
-
-                var eType = _dnlibHelper.FindEnumByTypeName(typeName);
-                var eFields = _dnlibHelper.GetEnumValues(eType);
-
-                nestedStruct.AddEnum(eFields);
-
-                structGenerator.AddStruct(nestedStruct);
-            }
-
-            {
-                const string name = "EQuestStatus";
-                const string typeName = "EQuestStatus";
                 SetVariableStatus(name);
 
                 StructureGenerator nestedStruct = new(name, StructureGenerator.eStructureType.Enum);
