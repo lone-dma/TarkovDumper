@@ -366,7 +366,6 @@ namespace TarkovDumper.Processors
                 structGenerator.AddStruct(nestedStruct);
             }
 
-            DumpParser.Result<DumpParser.OffsetData> ObservedPlayerStateContextOffset = default;
             DumpParser.Result<DumpParser.OffsetData> ObservedHealthControllerOffset = default;
 
             {
@@ -393,16 +392,8 @@ namespace TarkovDumper.Processors
 
                 {
                     entity = "MovementController";
-
-                    DumpParser.Result<DumpParser.OffsetData> offset1 = _dumpParser.FindOffsetByName(ObservedPlayerControllerTypeName, entity);
-
-                    if (offset1.Success)
-                    {
-                        string typeName2 = offset1.Value.TypeName.Replace("-.", "");
-                        ObservedPlayerStateContextOffset = _dumpParser.FindOffsetByName(typeName2, "ObservedPlayerStateContext");
-                    }
-
-                    nestedStruct.AddOffsetChain(entity, new() { offset1, ObservedPlayerStateContextOffset });
+                    var offset = _dumpParser.FindOffsetByName(ObservedPlayerControllerTypeName, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
@@ -416,28 +407,41 @@ namespace TarkovDumper.Processors
             }
 
             {
-                string name = "ObservedMovementController";
+                string name = "ObservedPlayerMovementController";
                 SetVariableStatus(name);
 
                 StructureGenerator nestedStruct = new(name);
 
                 string entity;
 
-                if (!ObservedPlayerStateContextOffset.Success)
-                {
-                    nestedStruct.AddOffset(name, ObservedPlayerStateContextOffset);
-                    goto end;
-                }
-
-                string ObservedPlayerStateContextTypeName = ObservedPlayerStateContextOffset!.Value!.TypeName!.Replace("-.", "");
+                const string className = "EFT.NextObservedPlayer.ObservedPlayerMovementController";
 
                 {
-                    entity = "Rotation";
-                    var offset = _dumpParser.FindOffsetByName(ObservedPlayerStateContextTypeName, entity);
+                    entity = "ObservedPlayerStateContext";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
-            end:
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+
+            {
+                string name = "ObservedPlayerStateContext";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name);
+
+                string entity;
+
+                const string className = "EFT.NextObservedPlayer.ObservedPlayerStateContext";
+
+                {
+                    entity = "Rotation";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
                 structGenerator.AddStruct(nestedStruct);
             }
 
