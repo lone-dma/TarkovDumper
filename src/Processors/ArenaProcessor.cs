@@ -16,6 +16,7 @@ namespace TarkovDumper.Processors
 
         public override void Run(StatusContext ctx)
         {
+            throw new NotImplementedException();
             base.Run(ctx);
             var structGenerator_classNames = new StructureGenerator("ClassNames");
             var structGenerator_offsets = new StructureGenerator("Offsets");
