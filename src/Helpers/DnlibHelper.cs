@@ -217,7 +217,7 @@ namespace TarkovDumper.Helpers
             foreach (var method in decompiledMethods)
             {
                 string returnValueRaw = method.Body.Split('\n').FirstOrDefault(line => line.Trim().StartsWith("return "));
-                
+
                 if (returnValueRaw != null)
                 {
                     string returnValue = returnValueRaw.Replace(";", "").Split("return ")[1].Trim();
