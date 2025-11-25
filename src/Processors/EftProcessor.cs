@@ -173,7 +173,7 @@ namespace TarkovDumper.Processors
 
                 string entity;
 
-                // Class name needs to be determined from dump or hardcoded
+                // Class className needs to be determined from dump or hardcoded
                 const string className = "BtrController";
 
                 {
@@ -351,40 +351,126 @@ namespace TarkovDumper.Processors
             DumpParser.Result<DumpParser.OffsetData> ObservedHealthControllerOffset = default;
 
             {
-                string name = "ObservedPlayerController";
+                string className = "ObservedPlayerController";
+                SetVariableStatus(className);
+
+                StructureGenerator nestedStruct = new(className);
+
+                string entity;
+
+                if (!ObservedPlayerControllerOffset.Success)
+                {
+                    nestedStruct.AddOffset(className, ObservedPlayerControllerOffset);
+                    goto end;
+                }
+
+                {
+                    entity = "InventoryController";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
+                {
+                    entity = "PlayerView";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
+                {
+                    entity = "MovementController";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
+                {
+                    entity = "HealthController";
+                    ObservedHealthControllerOffset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, ObservedHealthControllerOffset);
+                }
+
+            end:
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+            {
+                string name = "InventoryController";
                 SetVariableStatus(name);
 
                 StructureGenerator nestedStruct = new(name);
 
                 string entity;
 
-                if (!ObservedPlayerControllerOffset.Success)
-                {
-                    nestedStruct.AddOffset(name, ObservedPlayerControllerOffset);
-                    goto end;
-                }
-
-                string ObservedPlayerControllerTypeName = ObservedPlayerControllerOffset.Value.TypeName.Replace("-.", "");
+                const string className = "EFT.InventoryLogic.InventoryController";
 
                 {
-                    entity = "Player";
-                    var offset = _dumpParser.FindOffsetByTypeName(ObservedPlayerControllerTypeName, "EFT.NextObservedPlayer.ObservedPlayerView");
+                    entity = "Inventory";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+            {
+                string name = "Inventory";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name);
+
+                string entity;
+
+                const string className = "EFT.InventoryLogic.Inventory";
+
                 {
-                    entity = "MovementController";
-                    var offset = _dumpParser.FindOffsetByName(ObservedPlayerControllerTypeName, entity);
+                    entity = "Equipment";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+            {
+                string name = "InventoryEquipment";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name);
+
+                string entity;
+
+                const string className = "EFT.InventoryLogic.InventoryEquipment";
+
                 {
-                    entity = "HealthController";
-                    ObservedHealthControllerOffset = _dumpParser.FindOffsetByName(ObservedPlayerControllerTypeName, entity);
-                    nestedStruct.AddOffset(entity, ObservedHealthControllerOffset);
+                    entity = "_cachedSlots";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
-            end:
+                structGenerator.AddStruct(nestedStruct);
+            }
+
+            {
+                string name = "Slot";
+                SetVariableStatus(name);
+
+                StructureGenerator nestedStruct = new(name);
+
+                string entity;
+
+                const string className = "EFT.InventoryLogic.Slot";
+
+                {
+                    entity = "ID";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+
+                }
+                {
+                    entity = "ContainedItem";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
                 structGenerator.AddStruct(nestedStruct);
             }
 
