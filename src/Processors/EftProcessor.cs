@@ -288,6 +288,12 @@ namespace TarkovDumper.Processors
                     nestedStruct.AddOffset(entity, offset);
                 }
 
+                {
+                    entity = "_playerLookRaycastTransform";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
+                }
+
                 structGenerator.AddStruct(nestedStruct);
             }
 
