@@ -18,7 +18,6 @@ namespace TarkovSdkGen.Processors
         /// </summary>
         public override void Run(StatusContext ctx)
         {
-            throw new NotImplementedException("Moved to il2cpp");
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine($"Processing {this.GetType()} entries...");
             var structGenerator_offsets = new StructureGenerator("Offsets");
