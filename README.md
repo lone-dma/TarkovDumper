@@ -1,6 +1,6 @@
-# TarkovDumper
+# Tarkov-SDKGEN
 
-Assembly/Offsets Dumper; SDK Generator for EFT/Arena.
+SDK Generator for EFT/Arena.
 
 Relies on a [custom Il2CppDumper implementation](https://github.com/lone-dma/Il2CppDumper/tree/lone)
 
