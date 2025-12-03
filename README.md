@@ -1,6 +1,6 @@
-# TarkovDumper
+# Tarkov-SDKGEN
 
-Assembly/Offsets Dumper; SDK Generator for EFT/Arena.
+SDK Generator for EFT/Arena.
 
 ## How to use
 1. Set the path of your `dump.txt` file from [UnispectEx](https://github.com/lone-dma/UnispectEx) in `%AppData%\TarkovDumper\dumper_config.json`.
