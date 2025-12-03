@@ -204,10 +204,8 @@ namespace TarkovDumper
         {
             try
             {
-                // Header format examples:
-                // [Class] EFT.GameWorld : UnityEngine.MonoBehaviour
-                // [Class] -.\uE07F : System.Object
-                // [Struct] MyStruct : System.ValueType
+                // New format: [Class] EFT.GameWorld : UnityEngine.MonoBehaviour
+                // Old format: [Class] -.\uE07F : System.Object
                 if (!cleaned.StartsWith("[", StringComparison.Ordinal))
                     return null;
 
@@ -215,13 +213,14 @@ namespace TarkovDumper
                 if (closingBracket < 0)
                     return null;
 
-                // Skip ']'
+                // Skip ']' and get remainder
                 string remainder = cleaned.Substring(closingBracket + 1).Trim();
-                // Remainder until ':' is the group name (may include leading dash dot tokens)
+                
+                // Find the class name (before ':')
                 int colonIndex = remainder.IndexOf(':');
                 string namePart = colonIndex >= 0 ? remainder.Substring(0, colonIndex).Trim() : remainder;
 
-                // Remove optional "-." prefix
+                // Remove optional "-." prefix if present
                 if (namePart.StartsWith("-.", StringComparison.Ordinal))
                     namePart = namePart.Substring(2).Trim();
 
@@ -242,30 +241,23 @@ namespace TarkovDumper
             {
                 string cleaned = CleanLine(_dump[i], true);
 
-                var lineData = ExtractLineData(cleaned);
-                if (!lineData.Success)
+                // Check if we hit another class/struct header
+                if (IsOffsetGroup(cleaned))
                 {
-                    // Break if we hit another group header
-                    if (IsOffsetGroup(cleaned))
-                    {
-                        endIndex = lastLineWithOffset;
-                        break;
-                    }
-                    continue;
+                    endIndex = lastLineWithOffset > -1 ? lastLineWithOffset : i;
+                    break;
                 }
 
-                if (IsHexString(lineData.Value.Offset))
+                var lineData = ExtractLineData(cleaned);
+                if (lineData.Success && IsHexString(lineData.Value.Offset))
                 {
                     lastLineWithOffset = i + 1;
                     continue;
                 }
 
-                // Non-hex offset line (likely next group) => close
-                if (cleaned.Length > 0)
-                {
-                    endIndex = lastLineWithOffset;
-                    break;
-                }
+                // Empty line or non-offset line
+                if (string.IsNullOrWhiteSpace(cleaned))
+                    continue;
             }
 
             if (endIndex > -1)
@@ -298,16 +290,34 @@ namespace TarkovDumper
         {
             try
             {
+                // New format: "    [00] Position : object"
+                // Pattern: [hex_offset] field_name : type_name
+                
+                // Skip lines that don't have field data
+                if (!cleaned.Contains('[') || !cleaned.Contains(']'))
+                    return new(false);
+
                 int open = cleaned.IndexOf('[');
                 int close = cleaned.IndexOf(']');
                 if (open < 0 || close < open)
                     return new(false);
-                string offset = cleaned.Substring(open + 1, close - open - 1);
 
+                // Extract hex offset (e.g., "00", "10", "A8")
+                string offset = cleaned.Substring(open + 1, close - open - 1).Trim();
+                
+                // Validate it's a hex string
+                if (!IsHexString(offset))
+                    return new(false);
+
+                // Get everything after ']'
                 string after = cleaned.Substring(close + 1).TrimStart();
+                
+                // Find the colon separator
                 int colonIdx = after.IndexOf(':');
                 if (colonIdx < 0)
                     return new(false);
+
+                // Extract field name and type name
                 string offsetName = after.Substring(0, colonIdx).Trim();
                 string typeName = after.Substring(colonIdx + 1).Trim();
 
@@ -322,7 +332,10 @@ namespace TarkovDumper
         private static bool IsOffsetGroup(string cleaned)
         {
             const StringComparison ct = StringComparison.OrdinalIgnoreCase;
-            return cleaned.StartsWith("[class]", ct) || cleaned.StartsWith("[struct]", ct);
+            // Check for both [Class] and [Struct] (and also [Interface])
+            return cleaned.StartsWith("[class]", ct) || 
+                   cleaned.StartsWith("[struct]", ct) ||
+                   cleaned.StartsWith("[interface]", ct);
         }
 
         private static bool IsHexString(string data) => OffsetRegex().IsMatch(data);

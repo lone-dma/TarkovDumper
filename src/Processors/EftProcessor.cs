@@ -173,19 +173,17 @@ namespace TarkovDumper.Processors
 
                 string entity;
 
-                // Class className needs to be determined from dump or hardcoded
+                // Class name needs to be determined from dump or hardcoded
                 const string className = "BtrController";
 
                 {
                     entity = "BtrView";
-                    var offset = _dumpParser.FindOffsetByTypeName(className, "EFT.Vehicle.BTRView");
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
                 structGenerator.AddStruct(nestedStruct);
             }
-
-            string BtrTurretClassName = default;
 
             {
                 string name = "BTRView";
@@ -199,7 +197,6 @@ namespace TarkovDumper.Processors
                 {
                     entity = "turret";
                     var offset = _dumpParser.FindOffsetByName(className, entity);
-                    BtrTurretClassName = offset.Value.TypeName;
                     nestedStruct.AddOffset(entity, offset);
                 }
 
@@ -213,6 +210,7 @@ namespace TarkovDumper.Processors
             }
 
             {
+                const string className = "EFT.Vehicle.BTRTurretView";
                 string name = "BTRTurretView";
                 SetVariableStatus(name);
 
@@ -222,7 +220,7 @@ namespace TarkovDumper.Processors
 
                 {
                     entity = "_bot";
-                    var offset = _dumpParser.FindOffsetByName(BtrTurretClassName, entity);
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
@@ -297,8 +295,6 @@ namespace TarkovDumper.Processors
                 structGenerator.AddStruct(nestedStruct);
             }
 
-            DumpParser.Result<DumpParser.OffsetData> ObservedPlayerControllerOffset = default;
-
             {
                 string name = "ObservedPlayerView";
                 SetVariableStatus(name);
@@ -335,8 +331,8 @@ namespace TarkovDumper.Processors
 
                 {
                     entity = "ObservedPlayerController";
-                    ObservedPlayerControllerOffset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, ObservedPlayerControllerOffset);
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
@@ -354,47 +350,39 @@ namespace TarkovDumper.Processors
                 structGenerator.AddStruct(nestedStruct);
             }
 
-            DumpParser.Result<DumpParser.OffsetData> ObservedHealthControllerOffset = default;
-
             {
-                string className = "ObservedPlayerController";
-                SetVariableStatus(className);
+                string name = "ObservedPlayerController";
+                const string typeName = "EFT.NextObservedPlayer.ObservedPlayerController";
+                SetVariableStatus(name);
 
-                StructureGenerator nestedStruct = new(className);
+                StructureGenerator nestedStruct = new(name);
 
                 string entity;
 
-                if (!ObservedPlayerControllerOffset.Success)
-                {
-                    nestedStruct.AddOffset(className, ObservedPlayerControllerOffset);
-                    goto end;
-                }
-
                 {
                     entity = "InventoryController";
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
                     entity = "PlayerView";
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
                     entity = "MovementController";
-                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
                     entity = "HealthController";
-                    ObservedHealthControllerOffset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, ObservedHealthControllerOffset);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
-            end:
                 structGenerator.AddStruct(nestedStruct);
             }
 
@@ -527,17 +515,11 @@ namespace TarkovDumper.Processors
 
                 string entity;
 
-                if (!ObservedHealthControllerOffset.Success)
-                {
-                    nestedStruct.AddOffset(name, ObservedHealthControllerOffset);
-                    goto end;
-                }
-
                 const string typeName = "ObservedPlayerHealthController";
 
                 {
                     entity = "_player";
-                    var offset = _dumpParser.FindOffsetByTypeName(typeName, "EFT.NextObservedPlayer.ObservedPlayerView");
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
@@ -553,11 +535,8 @@ namespace TarkovDumper.Processors
                     nestedStruct.AddOffset(entity, offset);
                 }
 
-            end:
                 structGenerator.AddStruct(nestedStruct);
             }
-
-            DumpParser.Result<DumpParser.OffsetData> ProfileInfoOffset = default;
 
             {
                 string name = "Profile";
@@ -583,8 +562,8 @@ namespace TarkovDumper.Processors
 
                 {
                     entity = "Info";
-                    ProfileInfoOffset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, ProfileInfoOffset);
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
                 structGenerator.AddStruct(nestedStruct);
@@ -592,31 +571,24 @@ namespace TarkovDumper.Processors
 
             {
                 string name = "PlayerInfo";
+                const string typeName = "EFT.ProfileInfo";
                 SetVariableStatus(name);
 
                 StructureGenerator nestedStruct = new(name);
 
                 string entity;
 
-                if (!ProfileInfoOffset.Success)
-                {
-                    nestedStruct.AddOffset(name, ProfileInfoOffset);
-                    goto end;
-                }
-
-                string ProfileInfoTypeName = ProfileInfoOffset.Value.TypeName.Replace("-.", "");
-
                 {
                     entity = "GroupId";
-                    var offset = _dumpParser.FindOffsetByName(ProfileInfoTypeName, entity);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
-                var registrationDateOffset = _dumpParser.FindOffsetByName(ProfileInfoTypeName, "RegistrationDate");
+                var registrationDateOffset = _dumpParser.FindOffsetByName(typeName, "RegistrationDate");
                 {
                     entity = "Side";
-                    var offset = _dumpParser.FindOffsetByName(ProfileInfoTypeName, entity);
-                    nestedStruct.AddOffset(entity, new(true, new(entity, "[HUMAN] Int32", registrationDateOffset.Value.Offset - 0x4)));
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
                 {
@@ -639,8 +611,8 @@ namespace TarkovDumper.Processors
                 const string className = "EFT.MovementContext";
 
                 {
-                    entity = "Player";
-                    var offset = _dumpParser.FindOffsetByTypeName(className, "EFT.Player");
+                    entity = "_player";
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
@@ -691,8 +663,6 @@ namespace TarkovDumper.Processors
                 structGenerator.AddStruct(nestedStruct);
             }
 
-            DumpParser.Result<DumpParser.OffsetData> LootableContainerItemOwnerOffset = default;
-
             {
                 string name = "LootableContainer";
                 SetVariableStatus(name);
@@ -705,36 +675,28 @@ namespace TarkovDumper.Processors
 
                 {
                     entity = "ItemOwner";
-                    LootableContainerItemOwnerOffset = _dumpParser.FindOffsetByName(className, entity);
-                    nestedStruct.AddOffset(entity, LootableContainerItemOwnerOffset);
+                    var offset = _dumpParser.FindOffsetByName(className, entity);
+                    nestedStruct.AddOffset(entity, offset);
                 }
 
                 structGenerator.AddStruct(nestedStruct);
             }
 
             {
-                string name = "LootableContainerItemOwner";
+                string name = "ItemController";
+                const string typeName = "EFT.InventoryLogic.ItemController";
                 SetVariableStatus(name);
 
                 StructureGenerator nestedStruct = new(name);
 
                 string entity;
 
-                if (!LootableContainerItemOwnerOffset.Success)
-                {
-                    nestedStruct.AddOffset(name, LootableContainerItemOwnerOffset);
-                    goto end;
-                }
-
-                string LootableContainerItemOwnerTypeName = LootableContainerItemOwnerOffset.Value.TypeName.Replace("-.", "");
-
                 {
                     entity = "RootItem";
-                    var offset = _dumpParser.FindOffsetByName(LootableContainerItemOwnerTypeName, entity);
+                    var offset = _dumpParser.FindOffsetByName(typeName, entity);
                     nestedStruct.AddOffset(entity, offset);
                 }
 
-            end:
                 structGenerator.AddStruct(nestedStruct);
             }
 
