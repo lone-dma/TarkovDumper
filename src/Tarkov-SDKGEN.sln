@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34616.47
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TarkovDumper", "TarkovDumper.csproj", "{D9DCE6AA-CD9B-451E-8D60-6F0FA64B72AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tarkov-SDKGEN", "Tarkov-SDKGEN.csproj", "{D9DCE6AA-CD9B-451E-8D60-6F0FA64B72AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

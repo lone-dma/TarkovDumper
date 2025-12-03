@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TarkovDumper.UI
+namespace TarkovSdkGen.UI
 {
     public sealed class DumperConfig
     {
