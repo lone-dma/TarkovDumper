@@ -1,4 +1,4 @@
-﻿namespace TarkovDumper.UI
+﻿namespace TarkovSdkGen.UI
 {
     public enum MenuSelection
     {

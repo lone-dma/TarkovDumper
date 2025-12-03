@@ -1,9 +1,9 @@
 ﻿using dnlib.DotNet;
 using ICSharpCode.Decompiler.CSharp;
 using Spectre.Console;
-using TarkovDumper.Helpers;
+using TarkovSdkGen.Helpers;
 
-namespace TarkovDumper.Processors
+namespace TarkovSdkGen.Processors
 {
     public abstract class AbstractProcessor
     {

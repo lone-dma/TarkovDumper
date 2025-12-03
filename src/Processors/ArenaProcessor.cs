@@ -1,9 +1,9 @@
 ﻿using dnlib.DotNet;
 using Spectre.Console;
-using TarkovDumper.Helpers;
-using TarkovDumper.UI;
+using TarkovSdkGen.Helpers;
+using TarkovSdkGen.UI;
 
-namespace TarkovDumper.Processors
+namespace TarkovSdkGen.Processors
 {
     public sealed class ArenaProcessor : AbstractProcessor
     {

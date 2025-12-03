@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace TarkovDumper.Helpers
+namespace TarkovSdkGen.Helpers
 {
     public static class Utilities
     {

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace TarkovDumper
+namespace TarkovSdkGen
 {
     public sealed partial class DumpParser
     {

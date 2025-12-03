@@ -1,9 +1,9 @@
 ﻿using dnlib.DotNet;
 using Kokuban;
 using System.Text;
-using static TarkovDumper.Helpers.StructureGenerator;
+using static TarkovSdkGen.Helpers.StructureGenerator;
 
-namespace TarkovDumper.Helpers
+namespace TarkovSdkGen.Helpers
 {
     public sealed class StructureGenerator(string name, eStructureType structureType = eStructureType.Struct)
     {

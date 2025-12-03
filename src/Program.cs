@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Runtime;
 using System.Text;
 using System.Text.Json;
-using TarkovDumper;
-using TarkovDumper.Processors;
-using TarkovDumper.UI;
+using TarkovSdkGen;
+using TarkovSdkGen.Processors;
+using TarkovSdkGen.UI;
 
 [assembly: AssemblyVersion("2.0.1.0")]
 [assembly: AssemblyTitle(Program.Name)]
@@ -14,12 +14,12 @@ using TarkovDumper.UI;
 [assembly: AssemblyCopyright("©2025 Lone")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatform("Windows")]
 
-namespace TarkovDumper
+namespace TarkovSdkGen
 {
     class Program
     {
-        internal const string Name = "Tarkov Dumper";
-        private static readonly DirectoryInfo _configFolder = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TarkovDumper"));
+        internal const string Name = "Tarkov SDKGEN";
+        private static readonly DirectoryInfo _configFolder = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Tarkov-SDKGEN"));
         private static readonly FileInfo _configFile = new(Path.Combine(_configFolder.FullName, "dumper_config.json"));
 
         /// <summary>
