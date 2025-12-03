@@ -20,6 +20,7 @@ namespace TarkovDumper.Processors
         /// <exception cref="NotImplementedException"></exception>
         public override void Run(StatusContext ctx)
         {
+            throw new NotImplementedException("Moved to il2cpp");
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine($"Processing {this.GetType()} entries...");
             var structGenerator_classNames = new StructureGenerator("ClassNames");

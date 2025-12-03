@@ -861,7 +861,7 @@ namespace TarkovDumper.Processors
 
                 StructureGenerator nestedStruct = new(name);
 
-                const string className = "EFT.CommonNetworkGame`3";
+                const string className = "EFT.NetworkGame`1"; // Moved into a different inherited class
                 string entity;
 
                 {
