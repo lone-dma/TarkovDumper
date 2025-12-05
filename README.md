@@ -1,5 +1,7 @@
 # Tarkov-SDKGEN
 
+This is the legacy branch for Arena (still on Mono).
+
 SDK Generator for EFT/Arena.
 
 ## How to use
