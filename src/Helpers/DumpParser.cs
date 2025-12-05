@@ -49,7 +49,8 @@ namespace TarkovSdkGen
         }
 
         /// <summary>
-        /// Finds an offset group that contains all of the given entities.
+        /// Finds an offset group (class / struct) that contains all of the given entities.
+        /// Supports partial group name search ("GameWorld" will match "EFT.GameWorld").
         /// </summary>
         public string FindOffsetGroupWithEntities(List<EntitySearchListEntry> entities)
         {
@@ -75,25 +76,31 @@ namespace TarkovSdkGen
                             if (!lineData.Success)
                                 continue;
 
-                            if (entity.SearchType == SearchType.TypeName &&
-                                lineData.Value.TypeName.Equals(entity.Name, ct))
+                            if (entity.SearchType == SearchType.TypeName)
                             {
-                                foundCount++;
-                                break;
+                                if (lineData.Value.TypeName.Equals(entity.Name, ct))
+                                {
+                                    foundCount++;
+                                    break;
+                                }
                             }
-                            else if (entity.SearchType == SearchType.OffsetName &&
-                                lineData.Value.OffsetName.Equals(entity.Name, ct))
+                            else // OffsetName
                             {
-                                foundCount++;
-                                break;
+                                string alias = GetBackingFieldPropertyName(lineData.Value.OffsetName);
+                                if (lineData.Value.OffsetName.Equals(entity.Name, ct) ||
+                                    (alias != null && alias.Equals(entity.Name, ct)))
+                                {
+                                    foundCount++;
+                                    break;
+                                }
                             }
                         }
                     }
 
                     if (foundCount == entities.Count)
                     {
-                        string className = cleaned.Split(']')[1].Split(':')[0].Trim();
-                        return className;
+                        string groupName = ExtractGroupName(cleaned);
+                        return groupName;
                     }
                 }
             }
@@ -113,7 +120,8 @@ namespace TarkovSdkGen
             if (offsetName == null && typeName == null)
                 return new(false);
 
-            ReadOnlySpan<string> foundClass = FindOffsetGroupByName(offsetGroupName);
+            // Resolve group by flexible name matching
+            ReadOnlySpan<string> foundClass = FindOffsetGroupByFlexibleName(offsetGroupName);
             if (foundClass == null)
                 return new(false);
 
@@ -125,14 +133,19 @@ namespace TarkovSdkGen
                 if (!lineData.Success)
                     continue;
 
-                if (offsetName != null && lineData.Value.OffsetName.Equals(offsetName, ct))
-                    goto found;
-                else if (typeName != null && lineData.Value.TypeName.Equals(typeName, ct))
-                    goto found;
-                else
+                bool nameMatch = false;
+                if (offsetName != null)
+                {
+                    string alias = GetBackingFieldPropertyName(lineData.Value.OffsetName);
+                    nameMatch = lineData.Value.OffsetName.Equals(offsetName, ct) ||
+                                (alias != null && alias.Equals(offsetName, ct));
+                }
+
+                bool typeMatch = typeName != null && lineData.Value.TypeName.Equals(typeName, ct);
+
+                if (!nameMatch && !typeMatch)
                     continue;
 
-                found:
                 uint offset = uint.Parse(lineData.Value.Offset, System.Globalization.NumberStyles.HexNumber);
                 return new(true, new(lineData.Value.OffsetName, lineData.Value.TypeName, offset));
             }
@@ -140,25 +153,85 @@ namespace TarkovSdkGen
             return new(false);
         }
 
-        /// <summary>
-        /// Finds an offset group by name.
-        /// </summary>
-        private ReadOnlySpan<string> FindOffsetGroupByName(string name)
+        private static string GetBackingFieldPropertyName(string offsetName)
         {
-            for (int i = 0; i < _dump.Length; i++)
-            {
-                string cleaned = CleanLine(_dump[i]);
-
-                if (IsOffsetGroup(cleaned, name))
-                    return GetOffsetGroupExtents(i + 1);
-            }
-
-            return null;
+            if (string.IsNullOrEmpty(offsetName))
+                return null;
+            if (!offsetName.StartsWith('<') || !offsetName.EndsWith("k__BackingField", StringComparison.Ordinal))
+                return null;
+            int closingIndex = offsetName.IndexOf('>');
+            if (closingIndex <= 1)
+                return null;
+            return offsetName.Substring(1, closingIndex - 1);
         }
 
         /// <summary>
-        /// Finds the bounds of an offset group starting at the given line.
+        /// Flexible group name resolution. Accepts fully qualified name or short (last segment).
         /// </summary>
+        private ReadOnlySpan<string> FindOffsetGroupByFlexibleName(string name)
+        {
+            const StringComparison ct = StringComparison.OrdinalIgnoreCase;
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            for (int i = 0; i < _dump.Length; i++)
+            {
+                string cleaned = CleanLine(_dump[i]);
+                if (!IsOffsetGroup(cleaned))
+                    continue;
+
+                string groupName = ExtractGroupName(cleaned);
+                if (groupName == null)
+                    continue;
+
+                // Direct match (fully qualified)
+                if (groupName.Equals(name, ct))
+                    return GetOffsetGroupExtents(i + 1);
+
+                // Short name match (last segment after '.')
+                int lastDot = groupName.LastIndexOf('.');
+                if (lastDot >= 0)
+                {
+                    string shortName = groupName.Substring(lastDot + 1);
+                    if (shortName.Equals(name, ct))
+                        return GetOffsetGroupExtents(i + 1);
+                }
+            }
+            return null;
+        }
+
+        private static string ExtractGroupName(string cleaned)
+        {
+            try
+            {
+                // New format: [Class] EFT.GameWorld : UnityEngine.MonoBehaviour
+                // Old format: [Class] -.\uE07F : System.Object
+                if (!cleaned.StartsWith("[", StringComparison.Ordinal))
+                    return null;
+
+                int closingBracket = cleaned.IndexOf(']');
+                if (closingBracket < 0)
+                    return null;
+
+                // Skip ']' and get remainder
+                string remainder = cleaned.Substring(closingBracket + 1).Trim();
+                
+                // Find the class name (before ':')
+                int colonIndex = remainder.IndexOf(':');
+                string namePart = colonIndex >= 0 ? remainder.Substring(0, colonIndex).Trim() : remainder;
+
+                // Remove optional "-." prefix if present
+                if (namePart.StartsWith("-.", StringComparison.Ordinal))
+                    namePart = namePart.Substring(2).Trim();
+
+                return namePart.Length == 0 ? null : namePart;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private ReadOnlySpan<string> GetOffsetGroupExtents(int startIndex)
         {
             int endIndex = -1;
@@ -168,21 +241,31 @@ namespace TarkovSdkGen
             {
                 string cleaned = CleanLine(_dump[i], true);
 
-                var lineData = ExtractLineData(cleaned);
-                if (!lineData.Success)
-                    continue;
-
-                if (IsHexString(lineData.Value.Offset))
-                    lastLineWithOffset = i + 1;
-                else if (cleaned.Length > 0)
+                // Check if we hit another class/struct header
+                if (IsOffsetGroup(cleaned))
                 {
-                    endIndex = lastLineWithOffset;
+                    endIndex = lastLineWithOffset > -1 ? lastLineWithOffset : i;
                     break;
                 }
+
+                var lineData = ExtractLineData(cleaned);
+                if (lineData.Success && IsHexString(lineData.Value.Offset))
+                {
+                    lastLineWithOffset = i + 1;
+                    continue;
+                }
+
+                // Empty line or non-offset line
+                if (string.IsNullOrWhiteSpace(cleaned))
+                    continue;
             }
 
             if (endIndex > -1)
                 return _dump.AsSpan(startIndex, endIndex - startIndex);
+
+            // Reached end of file; include up to last offset if present
+            if (lastLineWithOffset > -1)
+                return _dump.AsSpan(startIndex, lastLineWithOffset - startIndex);
 
             return null;
         }
@@ -190,14 +273,9 @@ namespace TarkovSdkGen
         private static string CleanLine(string line, bool minimal = false)
         {
             const StringComparison ct = StringComparison.OrdinalIgnoreCase;
-
             line = line.Trim();
-
             if (!minimal)
-            {
                 line = line.Replace("[C]", "", ct).Replace("[S]", "", ct);
-            }
-
             return line;
         }
 
@@ -212,9 +290,36 @@ namespace TarkovSdkGen
         {
             try
             {
-                string offset = cleaned.Split('[')[1].Split(']')[0];
-                string offsetName = cleaned.Split(']')[1].Split(':')[0].Trim();
-                string typeName = cleaned.Split(':')[1].Trim();
+                // New format: "    [00] Position : object"
+                // Pattern: [hex_offset] field_name : type_name
+                
+                // Skip lines that don't have field data
+                if (!cleaned.Contains('[') || !cleaned.Contains(']'))
+                    return new(false);
+
+                int open = cleaned.IndexOf('[');
+                int close = cleaned.IndexOf(']');
+                if (open < 0 || close < open)
+                    return new(false);
+
+                // Extract hex offset (e.g., "00", "10", "A8")
+                string offset = cleaned.Substring(open + 1, close - open - 1).Trim();
+                
+                // Validate it's a hex string
+                if (!IsHexString(offset))
+                    return new(false);
+
+                // Get everything after ']'
+                string after = cleaned.Substring(close + 1).TrimStart();
+                
+                // Find the colon separator
+                int colonIdx = after.IndexOf(':');
+                if (colonIdx < 0)
+                    return new(false);
+
+                // Extract field name and type name
+                string offsetName = after.Substring(0, colonIdx).Trim();
+                string typeName = after.Substring(colonIdx + 1).Trim();
 
                 return new(true, new(offset, offsetName, typeName));
             }
@@ -224,48 +329,16 @@ namespace TarkovSdkGen
             }
         }
 
-        private static bool IsOffsetGroup(string cleaned, string name = null)
+        private static bool IsOffsetGroup(string cleaned)
         {
             const StringComparison ct = StringComparison.OrdinalIgnoreCase;
-
-            if (name == null)
-            {
-                const string v1 = $"[class]";
-                const string v2 = $"[struct]";
-
-                if (cleaned.StartsWith(v1, ct) ||
-                    cleaned.StartsWith(v2, ct))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                string v1 = $"[class] -.{name}";
-                string v2 = $"[class] {name}";
-
-                string v3 = $"[struct] -.{name}";
-                string v4 = $"[struct] {name}";
-
-                if (cleaned.StartsWith(v1, ct) ||
-                    cleaned.StartsWith(v2, ct) ||
-                    cleaned.StartsWith(v3, ct) ||
-                    cleaned.StartsWith(v4, ct))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // Check for both [Class] and [Struct] (and also [Interface])
+            return cleaned.StartsWith("[class]", ct) || 
+                   cleaned.StartsWith("[struct]", ct) ||
+                   cleaned.StartsWith("[interface]", ct);
         }
 
-        private static bool IsHexString(string data)
-        {
-            if (OffsetRegex().IsMatch(data))
-                return true;
-
-            return false;
-        }
+        private static bool IsHexString(string data) => OffsetRegex().IsMatch(data);
 
         #endregion
     }
